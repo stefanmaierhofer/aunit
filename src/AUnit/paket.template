@@ -1,0 +1,9 @@
+type project
+id AUnit
+authors Stefan Maierhofer
+owners Stefan Maierhofer
+projectUrl https://github.com/stefanmaierhofer/aunit
+licenseUrl https://github.com/stefanmaierhofer/aunit/blob/master/LICENSE
+description
+    A unit test framework.
+include-pdbs true

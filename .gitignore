@@ -1,0 +1,12 @@
+#Paket dependency manager
+paket-files/
+
+.vs
+**/.idea/
+**/bin
+**/obj
+/.ionide
+/.paket
+/paket-files
+/publish
+/tmp
