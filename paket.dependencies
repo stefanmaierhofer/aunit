@@ -1,0 +1,8 @@
+source https://api.nuget.org/v3/index.json
+
+storage: none
+framework: auto-detect
+
+nuget Aardvark.Build                == 1.0.21
+nuget Spectre.Console               >= 0.48.0
+nuget Spectre.Console.Cli           >= 0.48.0
