@@ -1,3 +1,6 @@
+### 1.0.2
+* publish `au` as dotnet tool (try again)
+
 ### 1.0.1
 * update packages; publish `au` as dotnet tool
 
