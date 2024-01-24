@@ -80,7 +80,7 @@ public class ListCommand : Command<ListCommand.Settings>
                 };
             })
             .Where(x => x.Tests.Length > 0)
-            .OrderBy(x => x.Name + ";" + x.Version + ";" + x.Target + x.Config)
+            .OrderBy(x => x.Name + ";" + x.Version + ";" + x.Config + ";" + x.Target)
             .ToArray()
             ;
 
@@ -88,8 +88,8 @@ public class ListCommand : Command<ListCommand.Settings>
                 .AddColumn("#", x => x.Alignment = Justify.Right)
                 .AddColumn("Assembly")
                 .AddColumn("Version")
-                .AddColumn("Target")
                 .AddColumn("Config")
+                .AddColumn("Target")
                 .AddColumn("Test Classes", x => x.Alignment = Justify.Right)
                 .AddColumn("Test Methods", x => x.Alignment = Justify.Right)
                 .AddColumn("Path")
@@ -112,8 +112,8 @@ public class ListCommand : Command<ListCommand.Settings>
                     new Text($"{++i}"),
                     new Text(x.Name),
                     new Text(x.Version),
-                    new Text(x.Target),
                     new Text(x.Config),
+                    new Text(x.Target),
                     new Text($"{countTestClasses:N0}"),
                     new Text($"{countTestMethods:N0}"),
                     new Text($"{x.Assembly.Location}"),

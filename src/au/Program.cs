@@ -23,20 +23,17 @@ app.Configure(config =>
     config
         .AddCommand<RunCommand>("run")
         .WithDescription("Run tests.")
-        .WithExample(["run"])
         .WithExample(["run", "MySolution.sln"])
-        .WithExample(["run", "SomeDll.dll"])
-        .WithExample(["run", "a/path/to/search/for/dlls"])
+        .WithExample(["run", "MyProject.csproj"])
+        .WithExample(["run", ".", "--output", "result.json"])
         ;
 
     config
         .AddCommand<ListCommand>("list")
         .WithAlias("ls")
         .WithDescription("List tests.")
-        .WithExample(["list"])
         .WithExample(["list", "MySolution.sln"])
-        .WithExample(["list", "SomeDll.dll"])
-        .WithExample(["list", "a/path/to/search/for/dlls"])
+        .WithExample(["list", "MyProject.csproj"])
         ;
 });
 

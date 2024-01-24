@@ -26,7 +26,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_", "_", "{EC58FBEE-0E89-40
 		..\RELEASE_NOTES.md = ..\RELEASE_NOTES.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scratch", "Scratch\Scratch.csproj", "{C93CFEFA-8EAF-4905-B263-3CD22119A05D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AUnit.Examples", "AUnit.Examples\AUnit.Examples.csproj", "{C93CFEFA-8EAF-4905-B263-3CD22119A05D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

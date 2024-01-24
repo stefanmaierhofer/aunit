@@ -27,3 +27,8 @@ public enum TestStatus
     /// </summary>
     Expected = 256
 }
+
+public static class TestStatusExtensions
+{
+    public static bool IsExpected(this TestStatus status) => (status | TestStatus.Expected) != 0;
+}

@@ -16,6 +16,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace aunit;
 
@@ -31,9 +32,13 @@ public class RunCommand : AsyncCommand<RunCommand.Settings>
         [CommandArgument(0, "[PATH*]")]
         public string[] Paths { get; set; } = [];
 
-        [Description("Test assemblies with this build configuration, e.g. Debug or Release. ")]
+        [Description("Only tests assemblies with this build configuration, e.g. Debug or Release. ")]
         [CommandOption("-c|--config <CONFIG>")]
         public string[] Configurations { get; set; } = [];
+
+        [Description("Saves test results to FILE. ")]
+        [CommandOption("-o|--output <FILE>")]
+        public string? Output { get; set; }
     }
 
     public override async Task<int> ExecuteAsync([NotNull] CommandContext context, [NotNull] Settings settings)
@@ -73,9 +78,21 @@ public class RunCommand : AsyncCommand<RunCommand.Settings>
         var protocol = await CreateWithLivePrintAsync(assembliesToTest.Select(x => x.GetAssembly()));
 
         var now = DateTimeOffset.UtcNow;
-        var logFileName = $"./testlog_{now.Year:0000}-{now.Month:00}-{now.Day:00}_{now.Hour:00}{now.Minute:00}{now.Second}_{now.ToUnixTimeMilliseconds()}.json";
-        var json = JsonSerializer.Serialize(protocol, _jsonOptions);
-        File.WriteAllText(logFileName, json);
+
+        // save output to file ...
+        {
+            var logFileName =
+                settings.Output
+                ?? $"./testlog_{now.Year:0000}-{now.Month:00}-{now.Day:00}_{now.Hour:00}{now.Minute:00}{now.Second}_{now.ToUnixTimeMilliseconds()}.json";
+            ;
+            if (!Path.GetExtension(logFileName).Equals(".json", StringComparison.CurrentCultureIgnoreCase))
+            {
+                logFileName += ".json";
+            }
+
+            var json = JsonSerializer.Serialize(protocol, _jsonOptions);
+            File.WriteAllText(logFileName, json);
+        }
 
         return 0;
     }
@@ -127,8 +144,8 @@ public class RunCommand : AsyncCommand<RunCommand.Settings>
             .AddColumn("#", x => x.Alignment = Justify.Right)
             .AddColumn("Assembly")
             .AddColumn("Version")
-            .AddColumn("Framework")
             .AddColumn("Config")
+            .AddColumn("Framework")
             .AddColumn("Class")
             .AddColumn("Test")
             .AddColumn("Data")
@@ -182,6 +199,7 @@ public class RunCommand : AsyncCommand<RunCommand.Settings>
                         result.Exception is not PassException &&
                         result.Exception is not IgnoredException &&
                         result.Exception is not InconclusiveException
+                        && !result.Status.IsExpected()
                         )
                     {
                         statusText += $"\n\n[red]{Markup.Escape(result.Exception.ToString())}[/]";
@@ -221,8 +239,8 @@ public class RunCommand : AsyncCommand<RunCommand.Settings>
                         new Text($"{++count}"),
                         new Text(result.TestAssembly?.GetName()?.Name ?? "-"),
                         new Text(result.AssemblyVersion),
-                        new Text(result.TargetFramework),
                         new Text(result.Configuration),
+                        new Text(result.TargetFramework),
                         new Text(testType ?? "-"),
                         new Text(testMethod ?? "-"),
                         new Text(result.SourceData ?? ""),
@@ -261,6 +279,10 @@ public class RunCommand : AsyncCommand<RunCommand.Settings>
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
         WriteIndented = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters =
+        {
+            new JsonStringEnumConverter(),
+        },
     };
 }

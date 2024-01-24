@@ -273,6 +273,26 @@ public static class Assert
         }
     }
 
+    /// <summary>
+    /// Immediately passes test as ok, even from within other nested Assert statements like Assert.Throws.
+    /// </summary>
+    public static void Succeed() => Succeed(message: null);
+
+    /// <summary>
+    /// Immediately passes test as ok, even from within other nested Assert statements like Assert.Throws.
+    /// </summary>
+    public static void Succeed(string? message, params object[] @params)
+    {
+        if (message != null)
+        {
+            throw new PassException(string.Format(message, @params));
+        }
+        else
+        {
+            throw new PassException();
+        }
+    }
+
     public static void Ignore() => Ignore(message: null);
 
     public static void Ignore(string? message, params object[] @params)

@@ -137,7 +137,7 @@ public static class TestRunner
                 $"Internal error 30ed4b7f-b568-41de-8ead-5540d0452146."
                 );
 
-            foreach (var testMethod in testMethods/*.Skip(37).Take(1)*/)
+            foreach (var testMethod in testMethods)
             {
                 await foreach (var result in RunTestMethodAsync(new(testObject, testMethod), ct))
                 {

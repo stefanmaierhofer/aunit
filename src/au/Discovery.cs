@@ -50,27 +50,51 @@ internal static class Discovery
 
                 default:
                     {
-                        if (!Directory.Exists(path)) throw new Exception(
-                            $"Directory \"{path}\" does not exist. Error 144727ce-319a-4b63-b628-7b5f3ad7e95d."
-                            );
-
-                        // first, check for .sln files ...
-                        var slnFound = false;
-                        var slns = Directory.EnumerateFiles(path, "*.sln", SearchOption.AllDirectories);
-                        foreach (var sln in slns)
+                        if (Directory.Exists(path))
                         {
-                            var infos = GetAssemblyInfosFromSolutionFile(sln);
-                            dlls.AddRange(infos);
-                            slnFound = true;
-                        }
+                            // (1) check for .sln files ...
+                            var slnFound = false;
+                            var slns = Directory.EnumerateFiles(path, "*.sln", SearchOption.AllDirectories);
+                            foreach (var sln in slns)
+                            {
+                                var infos = GetAssemblyInfosFromSolutionFile(sln).ToList();
+                                if (infos.Count > 0)
+                                {
+                                    dlls.AddRange(infos);
+                                    slnFound = true;
+                                }
+                            }
 
-                        // if no .sln files have been found, then brute force enumerate all .dll files
-                        if (!slnFound)
+                            // (2) look for .csproj and .fsproj files
+                            //     (if no .sln file has been found)
+                            if (!slnFound)
+                            {
+                                var projFound = false;
+                                var projs = Directory.EnumerateFiles(path, "*.csproj", SearchOption.AllDirectories);
+                                foreach (var proj in projs)
+                                {
+                                    var infos = GetAssemblyInfosFromProjectFile(proj).ToList();
+                                    if (infos.Count > 0)
+                                    {
+                                        dlls.AddRange(infos);
+                                        projFound = true;
+                                    }
+                                }
+
+                                // (3) finally, brute force enumerate all .dll files
+                                if (!projFound)
+                                {
+                                    var infos = GetAssemblyInfosFromDirectory(path);
+                                    dlls.AddRange(infos);
+                                }
+                            }
+                        }
+                        else
                         {
-                            var infos = GetAssemblyInfosFromDirectory(path);
-                            dlls.AddRange(infos);
+                            throw new Exception(
+                                $"Directory \"{path}\" does not exist. Error 144727ce-319a-4b63-b628-7b5f3ad7e95d."
+                                );
                         }
-
                         break;
                     }
             }
@@ -100,6 +124,14 @@ internal static class Discovery
                 var xs = AssemblyContext.FromProjectInfo(info);
                 foreach (var x in xs) yield return x;
             }
+        }
+
+        static IEnumerable<AssemblyContext> GetAssemblyInfosFromProjectFile(string projectFile)
+        {
+            var absProjPath = Path.GetFullPath(projectFile);
+            var info = ProjectInfo.FromProjectFile(absProjPath);
+            var xs = AssemblyContext.FromProjectInfo(info);
+            return xs;
         }
 
         static IEnumerable<AssemblyContext> GetAssemblyInfosFromDirectory(string dir)
