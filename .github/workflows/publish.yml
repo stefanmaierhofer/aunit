@@ -21,10 +21,13 @@ jobs:
         run: dotnet tool restore
       - name: Restore
         run: dotnet paket restore
+      #- name: Pack
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #  run: dotnet aardpack src\aunit.sln --notag
       - name: Pack
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: dotnet aardpack src\aunit.sln --notag
+        shell: cmd
+        run: pack.cmd
       - name: Upload Packages
         uses: actions/upload-artifact@v3
         with:
