@@ -1,3 +1,6 @@
+### 1.0.4
+* fixed AssemblyLoadContext unloading bug
+* 
 ### 1.0.3
 * publish `au` as dotnet tool (try again)
 

@@ -56,14 +56,15 @@ public record AssemblyContext(
             );
     }
 
+    private AssemblyLoadContext? _alc = null; // MUST cache so it is not collected/unloaded
     private Assembly? _cachedAssembly = null;
     public Assembly GetAssembly()
     {
         if (_cachedAssembly != null) return _cachedAssembly;
 
-        var alc = new AssemblyLoadContext(name: null, isCollectible: true);
-        alc.Resolving += Resolving;
-        _cachedAssembly = alc.LoadFromAssemblyPath(Path.GetFullPath(AssemblyPath));
+        _alc = new AssemblyLoadContext(name: null, isCollectible: true);
+        _alc.Resolving += Resolving;
+        _cachedAssembly = _alc.LoadFromAssemblyPath(Path.GetFullPath(AssemblyPath));
 
         return _cachedAssembly;
 
@@ -78,45 +79,27 @@ public record AssemblyContext(
                 if (File.Exists(filename))
                 {
                     //Console.WriteLine($"[Resolving] found local {filename}");
-                    var result = context.LoadFromAssemblyPath(filename);
-                    return result;
+                    try
+                    {
+                        var result = context.LoadFromAssemblyPath(filename);
+                        return result;
+                    }
+                    catch (Exception e)
+                    {
+                        //Console.WriteLine($"[Resolving] failed to load {filename}");
+                        throw;
+                    }
                 }
             }
 
             // try resolve via nuget cache ...
+            try
             {
                 if (ProjectInfo == null) throw new Exception($"Missing project info for {AssemblyPath}. Error a391ba86-8869-4b3c-9441-3cf61e00350b.");
                 if (ProjectInfo.ProjectAssets == null) throw new Exception($"Missing project assets for {AssemblyPath}. Error 8cc91afe-f50b-44dc-8f74-292d40615e98.");
                 var assets = ProjectInfo.ProjectAssets;
 
                 if (Target == null) throw new Exception($"Missing target for {AssemblyPath}. Error 126ec8bf-e49b-4bd6-b626-693e88f101be.");
-
-                //if (!assets.TryGetValue(Target, out var targetInfo))
-                //{
-                //    if (Target == "netstandard2.0")
-                //    {
-                //        if (!assets.TryGetValue(".NETStandard,Version=v2.0", out targetInfo))
-                //        {
-                //            throw new Exception($"Failed to find target \"{Target}\" in [{string.Join(';', assets.Keys)}]. Error a9c9baeb-703d-4b11-8d6b-19c1ba6b2188.");
-                //        }
-                //    }
-                //    else
-                //    {
-                //        throw new Exception($"Failed to find target \"{Target}\" in [{string.Join(';', assets.Keys)}]. Error e6fe6b39-f03c-48b1-9e33-dc086a07e986.");
-                //    }
-                //}
-
-
-                //var mapping = targetInfo.Keys.ToImmutableDictionary(x => x.Split('/')[0]);
-                //var found = targetInfo[mapping[name.Name!]];
-
-                ////Console.WriteLine($"[Resolving] mapping {mapping[name.Name!]}");
-
-                //var nugetBase = Path.Combine("C:\\Users\\sm\\.nuget\\packages", mapping[name.Name!].ToLower());
-                //var nugetPath = found.Runtime.Keys.Single();
-                //var nugetDll = Path.Combine(nugetBase, nugetPath);
-
-                //Console.WriteLine($"[Resolving] trying to load {nugetDll}");
 
                 if (assets.TryGetNugetAssemblyPath(Target, name.Name!, out var nugetDllPath))
                 {
@@ -140,6 +123,11 @@ public record AssemblyContext(
                     //Environment.Exit(1);
                     return null;
                 }
+            }
+            catch (Exception e)
+            {
+                //Console.WriteLine($"[Resolving] ERROR: {e.Message}");
+                throw;
             }
         }
     }
