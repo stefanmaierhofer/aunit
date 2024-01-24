@@ -84,7 +84,7 @@ public record AssemblyContext(
                         var result = context.LoadFromAssemblyPath(filename);
                         return result;
                     }
-                    catch (Exception e)
+                    catch /*(Exception e)*/
                     {
                         //Console.WriteLine($"[Resolving] failed to load {filename}");
                         throw;
@@ -124,7 +124,7 @@ public record AssemblyContext(
                     return null;
                 }
             }
-            catch (Exception e)
+            catch /*(Exception e)*/
             {
                 //Console.WriteLine($"[Resolving] ERROR: {e.Message}");
                 throw;

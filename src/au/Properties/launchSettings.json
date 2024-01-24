@@ -2,7 +2,7 @@
   "profiles": {
     "aunit": {
       "commandName": "Project",
-      "commandLineArgs": "run \"C:\\Data\\Development\\aunit\\src\\aunit.sln\""
+      "commandLineArgs": "run \"C:\\Data\\Development\\pointshare.next\\src\""
     }
   }
 }
