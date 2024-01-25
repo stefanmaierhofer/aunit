@@ -26,4 +26,24 @@ class MyTests
         Console.WriteLine("printing to console ...");
         throw new Exception("... and logging exceptions");
     }
+
+    [Test]
+    public void Time(TestEnv env)
+    {
+        var info1 = env.Time("test 1", 1, 2, () =>
+        {
+            Task.Delay(110).Wait();
+        });
+
+        var info2 = env.Time("test 2", 10, 20, () =>
+        {
+            Task.Delay(11).Wait();
+        });
+
+        var info3 = env.Time("test 3", 1, 2, () =>
+        {
+            Task.Delay(110).Wait();
+        });
+
+    }
 }
