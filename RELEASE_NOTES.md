@@ -1,3 +1,6 @@
+### 1.0.6
+* temporarily removed net8.0 build targets because these cause aardpack to crash
+
 ### 1.0.5
 * improved test discovery
 * `au run`
