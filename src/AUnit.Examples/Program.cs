@@ -1,8 +1,9 @@
 ﻿using AUnit;
+using System.Reflection;
 
 #pragma warning disable CA1822 // Mark members as static
 
-//Console.WriteLine("Hello world!");
+Console.WriteLine(Globals.Version);
 
 class MyTests
 {

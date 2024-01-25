@@ -25,14 +25,13 @@ public record ProjectAssets(
         IReadOnlyDictionary<string, JsonElement> Runtime
         );
 
-    private IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>>? _target2name2path = null;
+    private Dictionary<string, Dictionary<string, string>>? _target2name2path = null;
 
     private void InitTarget2Name2Path()
     {
         if (_target2name2path != null) return;
 
-        var target2name2path = new Dictionary<string, Dictionary<string, string>>();
-        _target2name2path = (IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>>)target2name2path;
+        _target2name2path = [];
 
         foreach (var target in Targets)
         {
@@ -52,13 +51,17 @@ public record ProjectAssets(
                         foreach (var y in x.Value.Runtime.Keys)
                         {
                             var packageName = Path.GetFileNameWithoutExtension(y);
-                            var assemblyPath = Path.GetFullPath(Path.Combine(p, y));
-                            //Console.WriteLine($"    {packageName,-60} {assemblyPath}");
-                            if (!File.Exists(assemblyPath)) throw new Exception();
 
                             if (packageName != "_")
                             {
-                                name2path.Add(packageName, assemblyPath);
+                                var assemblyPath = Path.GetFullPath(Path.Combine(p, y));
+                                //Console.WriteLine($"    {packageName,-60} {assemblyPath}");
+                                if (!File.Exists(assemblyPath))
+                                {
+                                    Console.WriteLine($"[WARNING] files does not exist: {assemblyPath}");
+
+                                    name2path.Add(packageName, assemblyPath);
+                                }
                             }
                         }
                     }
@@ -67,7 +70,7 @@ public record ProjectAssets(
 
             var targetKey = target.Key;
             if (Utils.TfmOld2New.TryGetValue(targetKey, out var newTargetKey)) targetKey = newTargetKey;
-            target2name2path.Add(targetKey, name2path);
+            _target2name2path.Add(targetKey, name2path);
         }
     }
 

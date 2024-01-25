@@ -1,3 +1,6 @@
+### 1.0.8
+* re-enable net8.0 and check if aardpack works now
+
 ### 1.0.7
 * fixed `au --version` to show actual version instead of `1.0.0`
 
