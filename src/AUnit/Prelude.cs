@@ -5,6 +5,9 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+using System.Linq;
+using System.Reflection;
+
 namespace System.Runtime.CompilerServices
 {
     internal class IsExternalInit { }
@@ -14,6 +17,13 @@ namespace AUnit
 {
     public static class Globals
     {
-        public const string Version = "1.0.0";
+        public static readonly string Version = typeof(Globals)
+            .Assembly
+            .GetCustomAttributes()
+            .OfType<AssemblyInformationalVersionAttribute>()
+            .FirstOrDefault()
+            ?.InformationalVersion ?? "0.0.0";
+
+        public const string Copyright = "Copyright (c) 2024 Stefan Maierhofer";
     }
 }

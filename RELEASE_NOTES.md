@@ -1,3 +1,6 @@
+### 1.0.7
+* fixed `au --version` to show actual version instead of `1.0.0`
+
 ### 1.0.6
 * temporarily removed net8.0 build targets because these cause aardpack to crash
 
