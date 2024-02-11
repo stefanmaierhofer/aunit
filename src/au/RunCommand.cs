@@ -39,6 +39,10 @@ public class RunCommand : AsyncCommand<RunCommand.Settings>
         [Description("Saves test results to FILE. ")]
         [CommandOption("-o|--output <FILE>")]
         public string? Output { get; set; }
+
+        [Description("Only run tests contained in this class. Multiple allowed. ")]
+        [CommandOption("-t|--type <TESTCLASS>")]
+        public string[]? OnlyUseTheseTypes { get; set; }
     }
 
     public override async Task<int> ExecuteAsync([NotNull] CommandContext context, [NotNull] Settings settings)
@@ -75,7 +79,11 @@ public class RunCommand : AsyncCommand<RunCommand.Settings>
         }
 
         // run tests ...
-        var protocol = await CreateWithLivePrintAsync(assembliesToTest.Select(x => x.GetAssembly()));
+        var protocol = await CreateWithLivePrintAsync(
+            assemblies: assembliesToTest.Select(x => x.GetAssembly()),
+            onlyUseTheseTypes: new HashSet<string>(settings.OnlyUseTheseTypes ?? []),
+            ct: default
+            );
 
         var now = DateTimeOffset.UtcNow;
 
@@ -97,7 +105,7 @@ public class RunCommand : AsyncCommand<RunCommand.Settings>
         return 0;
     }
 
-    public static async Task<TestProtocol> CreateWithLivePrintAsync(IEnumerable<Assembly> assemblies, CancellationToken ct = default)
+    public async static Task<TestProtocol> CreateWithLivePrintAsync(IEnumerable<Assembly> assemblies, HashSet<string> onlyUseTheseTypes, CancellationToken ct = default)
     {
         var tests = new List<(Type type, MethodInfo[] methods)>();
 
@@ -106,7 +114,18 @@ public class RunCommand : AsyncCommand<RunCommand.Settings>
             try
             {
                 var xs = TestRunner.DiscoverTests(assembly).ToArray();
-                tests.AddRange(xs);
+
+                if (onlyUseTheseTypes.Count > 0)
+                {
+                    // filter tests from assembly by user-specified types
+                    var ys = xs.Where(x => onlyUseTheseTypes.Contains(x.type.Name) || (x.type.FullName != null && onlyUseTheseTypes.Contains(x.type.FullName)));
+                    tests.AddRange(ys);
+                }
+                else
+                {
+                    // add all tests from assembly
+                    tests.AddRange(xs);
+                }
             }
             catch
             {
@@ -153,6 +172,8 @@ public class RunCommand : AsyncCommand<RunCommand.Settings>
             .AddColumn("Status")
             .AddColumn("Message")
             ;
+
+        var lastRefresh = DateTime.MinValue;
 
         await AnsiConsole
             .Live(table)
@@ -249,7 +270,11 @@ public class RunCommand : AsyncCommand<RunCommand.Settings>
                         messages.Count > 0 ? new Rows(messages) : new Text("")
                         );
 
-                    ctx.Refresh();
+                    if ((DateTime.Now - lastRefresh).TotalSeconds > 0.5)
+                    {
+                        ctx.Refresh();
+                        lastRefresh = DateTime.Now;
+                    }
                 }
             });
 

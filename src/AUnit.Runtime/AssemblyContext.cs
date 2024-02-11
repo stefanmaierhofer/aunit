@@ -78,7 +78,7 @@ public record AssemblyContext(
                 var filename = Path.Combine(localDir, name.Name + ".dll");
                 if (File.Exists(filename))
                 {
-                    //Console.WriteLine($"[Resolving] found local {filename}");
+                   // Console.WriteLine($"[Resolving] found local {filename}");
                     try
                     {
                         var result = context.LoadFromAssemblyPath(filename);
@@ -114,12 +114,12 @@ public record AssemblyContext(
                         $"TODO a98d32c1-846d-4728-aba0-7e0a52ea5922. name={name.Name} path={nugetDllPath} fullname={name.FullName} version={name.Version} - choose from {string.Join(";", assets.Targets.Keys)}"
                         );
 
-                    //Console.WriteLine($"[Resolving] {dllPath}");
+                    //Console.WriteLine($"[Resolving] {nugetDllPath}");
                     return result;
                 }
                 else
                 {
-                    //AnsiConsole.MarkupLine($"[red]FAILED {Target} {name.Name} ({AssemblyPath})[/]");
+                    //Console.WriteLine($"FAILED {Target} {name.Name} ({AssemblyPath})");
                     //Environment.Exit(1);
                     return null;
                 }
