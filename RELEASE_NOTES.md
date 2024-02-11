@@ -1,3 +1,6 @@
+### 1.0.9
+* au run [-t <TESTCLASS>]*
+
 ### 1.0.8
 * re-enable net8.0 and check if aardpack works now
 
