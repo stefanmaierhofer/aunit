@@ -1,3 +1,7 @@
+### 1.0.10
+* update packages
+* AUnit.Runtime now wtargets net8.0 AND net6.0
+
 ### 1.0.9
 * au run [-t <TESTCLASS>]*
 
