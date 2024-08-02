@@ -2,7 +2,7 @@
   "profiles": {
     "aunit": {
       "commandName": "Project",
-      "commandLineArgs": "-v"
+      "commandLineArgs": "run C:\\Data\\Development\\aardworx.matrix\\src\\Aardworx.Matrix.Base.Tests -t MatrixPathTests"
     }
   }
 }
